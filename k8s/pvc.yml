@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pvc
+  name: data-mysql-0 
   namespace: skillpulse
 spec:
   storageClassName: gp2
@@ -10,4 +10,3 @@ spec:
   resources:
     requests:
       storage: 5Gi
-
