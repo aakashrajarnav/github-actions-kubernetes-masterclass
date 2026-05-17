@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/trainwithshubham/skillpulse/database"
-	"github.com/trainwithshubham/skillpulse/models"
+	"github.com/aakashrajarnav/skillpulse/database"
+	"github.com/aakashrajarnav/skillpulse/models"
 )
 
 func GetSkills(c *gin.Context) {
