@@ -24,10 +24,12 @@ spec:
           mountPath: /var/lib/mysql
   volumeClaimTemplates:
   - metadata:
-      name: data
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      storageClassName: gp2
-      resources:
-        requests:
-          storage: 5Gi
+    name: data
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    storageClassName: gp2 
+    resources:
+      requests:
+        storage: 5Gi
+
