@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"github.com/aakashrajarnav/skillpulse/database"
 	"github.com/aakashrajarnav/skillpulse/handlers"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {

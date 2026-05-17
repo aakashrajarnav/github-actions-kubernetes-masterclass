@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/aakashrajarnav/skillpulse/database"
 	"github.com/aakashrajarnav/skillpulse/models"
+	"github.com/gin-gonic/gin"
 )
 
 func CreateLog(c *gin.Context) {
