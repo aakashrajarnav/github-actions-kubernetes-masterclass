@@ -67,7 +67,7 @@ spec:
       backendRefs:
         - group: ""
           kind: Service
-          name: skillpulse-service
+          name: backend
           port: 8080
           weight: 1
 ---
