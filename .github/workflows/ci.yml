@@ -52,10 +52,11 @@ jobs:
         run: |
           go test ./...
 
-      - name: Check formatting (gofmt)
+      - name: Auto format (gofmt)
         working-directory: ./backend
         run: |
-          test -z "$(gofmt -l .)" || (echo 'gofmt found issues' && exit 1)
+          gofmt -w .
+          git diff --exit-code || (echo 'Code was reformatted by gofmt, please commit changes' && exit 1)
 
       - name: Set image tag
         id: tag
