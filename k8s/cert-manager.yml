@@ -20,3 +20,17 @@ spec:
                 kind: Gateway
                 name: skillpulse-gateway
                 namespace: skillpulse
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: skillpulse-tls
+  namespace: skillpulse
+spec:
+  secretName: skillpulse-tls   # must match Gateway reference
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - 13.201.53.182.nip.io     # must match your Gateway hostname
