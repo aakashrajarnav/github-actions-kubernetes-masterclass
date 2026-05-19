@@ -33,4 +33,4 @@ spec:
     name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-    - 13.201.53.182.nip.io     # must match your Gateway hostname
+    - 13.233.38.240.nip.io     # must match your Gateway hostname
