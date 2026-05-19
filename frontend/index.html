@@ -18,12 +18,35 @@
 </head>
 <body>
     <header class="header">
-        <div class="header-content">
-            <h1>SkillPulse</h1>
-            <p>Track your skills. Log your learning. Ship via GitHub Actions. [4th May 2026, 8:02 P.M]</p>
-        </div>
-        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+    <div class="header-content">
+        <h1>SkillPulse</h1>
+        <p> Track your skills. Log your learning. Ship via GitHub Actions. <span id="current-time"></span> </p>
+    </div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
     </header>
+
+    <script>
+    function updateTime() {
+        const now = new Date();
+        const options = {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+        };
+        document.getElementById('current-time').textContent =
+        `[${now.toLocaleString('en-IN', options)}]`;
+    }
+
+    // Run once on page load
+    updateTime();
+
+    // Optional: keep updating every minute
+    setInterval(updateTime, 60000);
+    </script>
+
 
     <main class="container">
         <!-- Dashboard Stats -->
