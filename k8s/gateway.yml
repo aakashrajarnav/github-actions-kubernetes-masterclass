@@ -63,12 +63,25 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api
+        - path:
+            type: PathPrefix
+            value: /health
       backendRefs:
         - group: ""
           kind: Service
           name: backend
           port: 8080
+          weight: 1
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: frontend
+          port: 80
           weight: 1
 ---
 # Session persistence: Envoy Gateway bypasses K8s Service sessionAffinity and
