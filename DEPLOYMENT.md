@@ -1,4 +1,4 @@
-# Deployment Playbook — AI BankApp on EKS
+# Deployment Playbook — SkillPulse on EKS
 
 Step-by-step commands to deploy the full stack. Run these in order.
 
@@ -24,7 +24,7 @@ terraform apply
 ## Step 2: Configure kubectl
 
 ```bash
-aws eks update-kubeconfig --name bankapp-eks --region us-west-2
+aws eks update-kubeconfig --name skillpulse-eks --region ap-south-1
 kubectl get nodes
 # Should show 3 nodes in Ready state
 ```
@@ -68,7 +68,7 @@ kubectl apply --server-side -f /tmp/eg-chart/gateway-helm/crds/generated/
 kubectl rollout restart deployment envoy-gateway -n envoy-gateway-system
 
 # Verify
-kubectl get gatewayclass
+kubectl get gatewayclass -n skillpulse
 ```
 
 ## Step 5: Install cert-manager (TLS/HTTPS)
@@ -88,12 +88,12 @@ kubectl get pods -n cert-manager
 After ArgoCD syncs the ClusterIssuer and updated Gateway (with HTTPS listener), cert-manager automatically provisions a Let's Encrypt TLS certificate.
 
 **Prerequisite:** Create a CNAME in GoDaddy:
-- `bankapp.trainwithshubham.com` → `<NLB hostname from Step 4>`
+- `skillpulse.trainwithshubham.com` → `<NLB hostname from Step 4>`
 
 ```bash
 # Check certificate status
-kubectl get certificate -n bankapp
-kubectl get secret bankapp-tls -n bankapp
+kubectl get certificate -n skillpulse
+kubectl get secret skillpulse-tls -n skillpulse
 ```
 
 ## Step 6: Install kube-prometheus-stack
@@ -129,7 +129,11 @@ kubectl get secret kube-prometheus-grafana -n monitoring \
 #   "no match for platform in manifest: not found"
 
 docker buildx build --platform linux/amd64 \
-  -t trainwithshubham/ai-bankapp-eks:latest \
+  -t aakashrajarnav/skillpulse-frontend:latest \
+  --push .
+
+docker buildx build --platform linux/amd64 \
+  -t aakashrajarnav/skillpulse-backend:latest \
   --push .
 ```
 
@@ -139,24 +143,24 @@ docker buildx build --platform linux/amd64 \
 kubectl apply -f argocd/application.yml
 
 # Watch sync progress
-kubectl get application bankapp -n argocd -w
+kubectl get application skillpulse -n argocd -w
 ```
 
 ## Step 9: Verify Everything
 
 ```bash
 # All pods should be Running
-kubectl get pods -n bankapp
+kubectl get pods -n skillpulse
 
 # Check PVCs are Bound
-kubectl get pvc -n bankapp
+kubectl get pvc -n skillpulse
 
 # Check Gateway has an address
-kubectl get gateway -n bankapp
+kubectl get gateway -n skillpulse
 
 # Get the app URL (NLB created by Envoy Gateway)
 kubectl get svc -n envoy-gateway-system \
-  -l gateway.envoyproxy.io/owning-gateway-name=bankapp-gateway \
+  -l gateway.envoyproxy.io/owning-gateway-name=skillpulse-gateway \
   -o jsonpath='{.items[0].status.loadBalancer.ingress[0].hostname}'
 
 # Test — should return 302 (Spring Security redirect to /login)
@@ -170,7 +174,7 @@ curl -s -o /dev/null -w "%{http_code}" -L http://<APP_URL>/login
 
 ```bash
 # Ollama starts empty — pull the AI model
-kubectl exec -n bankapp deploy/ollama -- ollama pull tinyllama
+kubectl exec -n skillpulse deploy/ollama -- ollama pull tinyllama
 ```
 
 ## Cleanup
@@ -196,10 +200,10 @@ echo "Waiting for LBs to terminate..."
 sleep 60
 
 # 5. Verify no Load Balancers remain in the VPC
-aws elb describe-load-balancers --region us-west-2 \
+aws elb describe-load-balancers --region ap-south-1 \
   --query 'LoadBalancerDescriptions[*].LoadBalancerName' --output text
 # Should be empty. If not, delete manually:
-# aws elb delete-load-balancer --load-balancer-name <name> --region us-west-2
+# aws elb delete-load-balancer --load-balancer-name <name> --region ap-south-1
 
 # 6. Destroy infrastructure
 cd terraform
@@ -209,13 +213,13 @@ terraform destroy
 **If `terraform destroy` gets stuck on VPC deletion**, orphaned resources remain:
 ```bash
 # Find and delete orphaned security groups
-aws ec2 describe-security-groups --region us-west-2 \
+aws ec2 describe-security-groups --region ap-south-1 \
   --filters Name=vpc-id,Values=<VPC_ID> \
   --query 'SecurityGroups[?GroupName!=`default`].[GroupId,GroupName]' --output table
-aws ec2 delete-security-group --group-id <SG_ID> --region us-west-2
+aws ec2 delete-security-group --group-id <SG_ID> --region ap-south-1
 
 # Then delete the VPC manually
-aws ec2 delete-vpc --vpc-id <VPC_ID> --region us-west-2
+aws ec2 delete-vpc --vpc-id <VPC_ID> --region ap-south-1
 
 # Re-run terraform destroy to clean the state
 terraform destroy
@@ -271,6 +275,6 @@ kubectl rollout restart deployment envoy-gateway -n envoy-gateway-system
 
 | Service | URL Command | Credentials |
 |---------|------------|-------------|
-| **BankApp** | `kubectl get svc -n envoy-gateway-system -l gateway.envoyproxy.io/owning-gateway-name=bankapp-gateway -o jsonpath='{.items[0].status.loadBalancer.ingress[0].hostname}'` | App login |
+| **SkillPulse** | `kubectl get svc -n envoy-gateway-system -l gateway.envoyproxy.io/owning-gateway-name=skillpulse-gateway -o jsonpath='{.items[0].status.loadBalancer.ingress[0].hostname}'` | App login |
 | **ArgoCD** | `kubectl get svc argocd-server -n argocd -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'` | `admin` / see Step 3 |
 | **Grafana** | `kubectl get svc kube-prometheus-grafana -n monitoring -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'` | `admin` / see Step 5 |
